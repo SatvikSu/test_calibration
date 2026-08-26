@@ -232,7 +232,7 @@ class MotorInterfaceNode(Node):
                                     enc_sign=config.get('enc_sign', 1),
                                     speed_max=config.get('speed_max', 620),
                                     motor_sign=config.get('motor_sign', 1))
-            print(f"{self.axes[name]} has been initialized")
+            print(f"{name} has been initialized")
         
     def calibration(self, msg:String):
 
@@ -279,10 +279,13 @@ class MotorInterfaceNode(Node):
             angle_change = angle - prev_angle
             if abs(angle_change) < stall_angle:
                 stall_min = True
-                leg.set_speed(0)
                 leg.enc.count = 0
 
         print(f'Min found. Finding max of {leg.name}')
+
+        # move the other way a bit so it doesn't get stuck and immediately think it's at max
+        leg.set_speed(speed)
+        time.sleep(1)
 
         stall_max = False
         leg.set_speed(speed)
@@ -294,7 +297,7 @@ class MotorInterfaceNode(Node):
             if abs(angle_change) < stall_angle:
                 stall_max = True
                 leg.leg_max = angle
-                print(angle) # testing
+                print(f'{angle * 180} degrees') # testing
 
         # go back a little
         leg.set_speed(-1*speed)
