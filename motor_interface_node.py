@@ -30,9 +30,6 @@ class MotorInterfaceNode(Node):
         self.ready_pub = self.create_publisher(String, 'init/motor_ready', 10)
         self.calibration_sub = self.create_subscription(String, 'init/motor_init', self.calibration, 10)
         
-    # ---------- CALIBRATION SEQUENCE -----------
-
-        # Calibration method runs through each leg motor and runs a calibration sequence for to find min/max angles
     def calibration(self, msg:String):
 
         if (msg.data == "No calibration" ):
