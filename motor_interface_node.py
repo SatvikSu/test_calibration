@@ -100,9 +100,9 @@ class QuadEncoder:
         self._count = 0
         self._lock  = threading.Lock()
         self._last  = 0
-        # Config GPIO as an input pin with internal pull-up resistor
-        GPIO.setup(self.pin_a, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(self.pin_b, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        # Config GPIO as an input pin
+        GPIO.setup(self.pin_a, GPIO.IN)
+        GPIO.setup(self.pin_b, GPIO.IN)
         a = GPIO.input(self.pin_a); b = GPIO.input(self.pin_b)
         self._last = (a << 1) | b # Bitwise left shift to capture current baseline edge
         # Adding event detection (interrupt) to detect edges for A and B
@@ -216,7 +216,7 @@ class MotorInterfaceNode(Node):
             'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=700),
             'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=700),
             'L_FL': dict(ch=6, port=1, enc_sign=-1, speed_max=620), # encoder counts backwards
-            'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=620),
+            'L_FR': dict(ch=1, port=2, enc_sign=-1,  speed_max=620, motor_sign=-1),
             'L_RL': dict(ch=1, port=1, enc_sign=1,  speed_max=620),
             'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=620),
         }
@@ -279,7 +279,7 @@ class MotorInterfaceNode(Node):
             angle_change = angle - prev_angle
             if abs(angle_change) < stall_angle:
                 stall_min = True
-                leg.enc.count = 0
+                leg.enc._count = 0
 
         print(f'Min found. Finding max of {leg.name}')
 
@@ -297,7 +297,7 @@ class MotorInterfaceNode(Node):
             if abs(angle_change) < stall_angle:
                 stall_max = True
                 leg.leg_max = angle
-                print(f'{angle * 180} degrees') # testing
+                print(f'{angle * 180/pi} degrees') # testing
 
         # go back a little
         leg.set_speed(-1*speed)
