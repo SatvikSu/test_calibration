@@ -211,13 +211,13 @@ class MotorInterfaceNode(Node):
 
                 # --------------- CREATE MOTOR OBJECTS --------------
         AXIS_CONFIG = {
-            'W_FL': dict(ch=0, port=1, enc_sign=1,  speed_max=700),
+            'W_FL': dict(ch=1, port=1, enc_sign=1,  speed_max=700),
             'W_FR': dict(ch=0, port=2, enc_sign=1,  speed_max=700, motor_sign=-1), # motor is flipped direction
             'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=700),
             'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=700),
-            'L_FL': dict(ch=6, port=1, enc_sign=-1, speed_max=620), # encoder counts backwards
+            'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=620, motor_sign=-1), 
             'L_FR': dict(ch=1, port=2, enc_sign=-1,  speed_max=620, motor_sign=-1),
-            'L_RL': dict(ch=1, port=1, enc_sign=1,  speed_max=620),
+            'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=620),
             'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=620),
         }
 
@@ -264,14 +264,16 @@ class MotorInterfaceNode(Node):
     # Dummy stall detection function
     def stall_detect(self, leg):
 
-        stall_angle = 2 * pi / 180 # radians: if motor moves less than this amt after time.sleep(time), it has stalled
+        stall_angle = 4 * pi / 180 # radians: if motor moves less than this amt after time.sleep(time), it has stalled
         stall_time = 0.05 # seconds
         speed = 200
         
         print(f'Finding min of {leg.name}')
+        
+        leg.set_speed(-1*speed)
+        time.sleep(0.4)
 
         stall_min = False
-        leg.set_speed(-1*speed)
         while not stall_min:
             prev_angle = leg.get_pos()
             time.sleep(stall_time)
@@ -301,7 +303,7 @@ class MotorInterfaceNode(Node):
 
         # go back a little
         leg.set_speed(-1*speed)
-        time.sleep(2)
+        time.sleep(1)
         leg.set_speed(0)
         
 
