@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 """
 motor_interface_node.py
-- Converts to encoder counts (counts = 250 * cm).
-- Runs synchronized wheel & move
-- Publishes wheel position, velocity, leg angle and speed (u) command magnitude.
-- Subscribes to motor control output ONLY (speed and leg angle)
+- Gives speed cmds to the 8 motors 
 
 PUB: motor/velocity
 PUB: leg/angle
