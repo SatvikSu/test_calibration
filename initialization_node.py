@@ -8,7 +8,7 @@ class InitializationNode(Node):
     def __init__(self):
         super().__init__('initialization_node')
         self.motor_pub = self.create_publisher(String, 'init/motor_init', 10)
-        self.motor_sub = self.create_subscription(String, 'init/motor_ready', self.motor_check, 10)
+        # self.motor_sub = self.create_subscription(String, 'init/motor_ready', self.motor_check, 10)
 
         # Start with motor initialization
         print("-------- MOTOR INITIALIZATION -------")
@@ -71,17 +71,19 @@ class InitializationNode(Node):
                     calibrate_l_rr = True
 
         self.motor_pub.publish(msg)
-    
+
+    '''
     def motor_check(self, msg: String):
         self.motor_ready = msg.data
         if self.motor_ready == "Ready":
             print("-------- CONTROL INITIALIZATION -------")
             self.input_thread2 = threading.Thread(target=self.read_control_init, daemon=True)
             self.input_thread2.start()
+
     def read_control_init(self):
         user_input = input("Hit 'Enter' to start control node: ")
         print("ALL NODES INITIALIZED")
-
+    '''
 
 def main(args=None):
     rclpy.init(args=args)

@@ -203,8 +203,12 @@ class MotorInterfaceNode(Node):
     def __init__(self):
 
         super().__init__('motor_interface_node')
-        self.ready_pub = self.create_publisher(String, 'init/motor_ready', 10)
+        # self.ready_pub = self.create_publisher(String, 'init/motor_ready', 10)
+        self.velocity_pub = self.create_publisher(Float32MultiArray, 'motor/velocity', 10)
+        self.leg_angle_pub = self.create_publisher(Float32MultiArray, 'leg/angle', 10)
         self.calibration_sub = self.create_subscription(String, 'init/motor_init', self.calibration, 10)
+        self.speed_cmd_sub = self.create_subscription(Int32MultiArray, 'motor/speed_cmd', self.set_motor_speeds, 10)
+        
 
                 # --------------- CREATE MOTOR OBJECTS --------------
         AXIS_CONFIG = {
@@ -229,36 +233,46 @@ class MotorInterfaceNode(Node):
                                     enc_sign=config.get('enc_sign', 1),
                                     speed_max=config.get('speed_max', 620),
                                     motor_sign=config.get('motor_sign', 1))
-            print(f"{name} has been initialized")
+            print(f"{name} Axis object has been created")
         
     def calibration(self, msg:String):
 
         if (msg.data == "No calibration" ):
-            print("Motor interface node is ready.")
-            # Publish "Ready" signal since no calibration
-            ready_msg = String()
-            ready_msg.data = "Ready"
-            self.ready_pub.publish(ready_msg)
-            self.initialization()
-            return
+            pass
+        else:
+            if 'L_FL' in msg.data:
+                self.stall_detect(self.axes['L_FL'])
+            if 'L_FR' in msg.data:
+                self.stall_detect(self.axes['L_FR'])
+            if 'L_RL' in msg.data:
+                self.stall_detect(self.axes['L_RL'])
+            if 'L_RR' in msg.data:
+                self.stall_detect(self.axes['L_RR'])    
+            print("All legs finished calibrating")
 
-        if 'L_FL' in msg.data:
-            self.stall_detect(self.axes['L_FL'])
-        if 'L_FR' in msg.data:
-            self.stall_detect(self.axes['L_FR'])
-        if 'L_RL' in msg.data:
-            self.stall_detect(self.axes['L_RL'])
-        if 'L_RR' in msg.data:
-            self.stall_detect(self.axes['L_RR'])    
-        print("All legs finished calibrating")
+        # ready_msg = String()
+        # ready_msg.data = "Ready"
+        # self.ready_pub.publish(ready_msg)
+
+        # now that calibration is done, start publishing motor data
+        self.vel_timer = self.create_timer(0.05, self.publish_velocity)
         
-        # Publish "Ready" signal when ready line is reached
-        ready_msg = String()
-        ready_msg.data = "Ready"
-        self.ready_pub.publish(ready_msg)
+
+    def set_motor_speeds(self, msg):
+        self.axes['W_FL'].set_speed(msg.data[0])
+        self.axes['W_FR'].set_speed(msg.data[1])
+        self.axes['W_RL'].set_speed(msg.data[2])
+        self.axes['W_RR'].set_speed(msg.data[3])
+        self.axes['L_FL'].set_speed(msg.data[4])
+        self.axes['L_FR'].set_speed(msg.data[5])
+        self.axes['L_RL'].set_speed(msg.data[6])
+        self.axes['L_RR'].set_speed(msg.data[7])
 
 
-    # Dummy stall detection function
+    def publish_velocity(self):
+        pass # TODO
+
+    # Stall detection function
     def stall_detect(self, leg):
 
         stall_angle = 3 * pi / 180 # radians: if motor moves less than this amt after time.sleep(time), it has stalled
@@ -297,6 +311,8 @@ class MotorInterfaceNode(Node):
                 stall_max = True
                 leg.leg_max = angle
                 print(f'{angle * 180/pi} degrees') # testing
+
+        print(f'Max of {leg.name} found')
 
         # go back a little
         leg.set_speed(-1*speed)
