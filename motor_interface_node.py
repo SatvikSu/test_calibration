@@ -216,7 +216,7 @@ class MotorInterfaceNode(Node):
             'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=700),
             'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=700),
             'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=620, motor_sign=-1), 
-            'L_FR': dict(ch=1, port=2, enc_sign=-1,  speed_max=620, motor_sign=-1),
+            'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=620, motor_sign=-1),
             'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=620),
             'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=620),
         }
@@ -264,7 +264,7 @@ class MotorInterfaceNode(Node):
     # Dummy stall detection function
     def stall_detect(self, leg):
 
-        stall_angle = 4 * pi / 180 # radians: if motor moves less than this amt after time.sleep(time), it has stalled
+        stall_angle = 3 * pi / 180 # radians: if motor moves less than this amt after time.sleep(time), it has stalled
         stall_time = 0.05 # seconds
         speed = 200
         
