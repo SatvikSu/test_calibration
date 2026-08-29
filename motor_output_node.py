@@ -14,6 +14,7 @@ import smbus # System Management Bus
 
 class MotorOutputNode(Node):
     def __init__(self):
+        super().__init__('motor_output_node')
         self.speed_cmd_pub = self.create_publisher(Int32MultiArray, 'motor/speed_cmd', 10)
         self.velocity_sub = self.create_subscription(Float32MultiArray, 'motor/velocity', self.velocityPID, 10)
 
