@@ -16,4 +16,10 @@ def generate_launch_description():
             prefix=['xterm -e'],
             output='screen',
         ),
+        Node(
+            package='test_calibration',
+            executable='motor_output',
+            prefix=['xterm -e'],
+            output='screen',
+        ),
     ])
