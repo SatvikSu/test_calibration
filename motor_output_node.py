@@ -22,7 +22,7 @@ class MotorOutputNode(Node):
         self.vel_error_integrals = Int32MultiArray()
         self.vel_error_integrals.data = []
         for i in range(8):
-            self.vel_error_integrals.data[i] = 0
+            self.vel_error_integrals.data.append(0)
     def velocityPID(self, msg : Float32MultiArray):
         Kp = 8 * pi/180 # Kp going from omega (rad/s) to motor speed command (from -800 to 800). For motor voltage = 12 V
         Ki = 2 * pi/180 # Ki going from omega (rad/s) * time (s) to motor speed command (from -800 to 800). For motor voltage = 12 V
@@ -46,7 +46,7 @@ class MotorOutputNode(Node):
         speeds = Int32MultiArray()
         speeds.data = []
         for i in range(8):
-            speeds.data[i] = int(Kp * vel_errors[i] + Ki * self.vel_error_integrals.data[i])
+            speeds.data.append(int(Kp * vel_errors[i] + Ki * self.vel_error_integrals.data[i]))
 
         self.speed_cmd_pub.publish(speeds)        
 
