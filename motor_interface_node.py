@@ -203,9 +203,8 @@ class MotorInterfaceNode(Node):
     def __init__(self):
 
         super().__init__('motor_interface_node')
-        # self.ready_pub = self.create_publisher(String, 'init/motor_ready', 10)
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'motor/velocity', 10)
-        self.leg_angle_pub = self.create_publisher(Float32MultiArray, 'leg/angle', 10)
+        # self.leg_angle_pub = self.create_publisher(Float32MultiArray, 'leg/angle', 10)
         self.calibration_sub = self.create_subscription(String, 'init/motor_init', self.calibration, 10)
         self.speed_cmd_sub = self.create_subscription(Int32MultiArray, 'motor/speed_cmd', self.set_motor_speeds, 10)
         
@@ -250,12 +249,8 @@ class MotorInterfaceNode(Node):
                 self.stall_detect(self.axes['L_RR'])    
             print("All legs finished calibrating")
 
-        # ready_msg = String()
-        # ready_msg.data = "Ready"
-        # self.ready_pub.publish(ready_msg)
-
         # now that calibration is done, start publishing motor data
-        self.vel_timer = self.create_timer(0.05, self.publish_velocity)
+        self.vel_timer = self.create_timer(0.01, self.publish_velocity)
         
 
     def set_motor_speeds(self, msg):
@@ -270,7 +265,17 @@ class MotorInterfaceNode(Node):
 
 
     def publish_velocity(self):
-        pass # TODO
+        velocities = Float32MultiArray()
+        velocities.data = []
+        velocities.data.append(self.axes['W_FL'].get_vel())
+        velocities.data.append(self.axes['W_FR'].get_vel())
+        velocities.data.append(self.axes['W_RL'].get_vel())
+        velocities.data.append(self.axes['W_RR'].get_vel())
+        velocities.data.append(self.axes['L_FL'].get_vel())
+        velocities.data.append(self.axes['L_FL'].get_vel())
+        velocities.data.append(self.axes['L_RL'].get_vel())
+        velocities.data.append(self.axes['L_RR'].get_vel())
+        self.velocity_pub.publish(velocities)
 
     # Stall detection function
     def stall_detect(self, leg):

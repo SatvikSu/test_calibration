@@ -8,8 +8,7 @@ class InitializationNode(Node):
     def __init__(self):
         super().__init__('initialization_node')
         self.motor_pub = self.create_publisher(String, 'init/motor_init', 10)
-        # self.motor_sub = self.create_subscription(String, 'init/motor_ready', self.motor_check, 10)
-
+        
         # Start with motor initialization
         print("-------- MOTOR INITIALIZATION -------")
         
