@@ -19,15 +19,16 @@ class MotorOutputNode(Node):
         self.velocity_sub = self.create_subscription(Float32MultiArray, 'motor/velocity', self.velocityPID, 10)
 
         # track integral of velocity error 
-        self.vel_error_integrals = Int32MultiArray()
+        self.vel_error_integrals = Float32MultiArray()
         self.vel_error_integrals.data = []
         for i in range(8):
             self.vel_error_integrals.data.append(0)
     def velocityPID(self, msg : Float32MultiArray):
-        Kp = 8 * pi/180 # Kp going from omega (rad/s) to motor speed command (from -800 to 800). For motor voltage = 12 V
-        Ki = 2 * pi/180 # Ki going from omega (rad/s) * time (s) to motor speed command (from -800 to 800). For motor voltage = 12 V
+        
+        Kp = 8 * 180/pi # Kp going from omega (rad/s) to motor speed command (from -800 to 800). For motor voltage = 12 V
+        Ki = 2 * 180/pi # Ki going from omega (rad/s) * time (s) to motor speed command (from -800 to 800). For motor voltage = 12 V
         # reference velocity in rad/s
-        reference_vel = [ 
+        reference_vel = [ # in rad/s
             0, # W_FL
             90 * pi/180, # W_FR
             0, # W_RL
@@ -40,15 +41,18 @@ class MotorOutputNode(Node):
 
         vel_errors = []
         for i in range(8):
-            vel_errors[i] = reference_vel[i] - msg.data[i]
+            vel_errors.append(reference_vel[i] - msg.data[i]) 
             self.vel_error_integrals.data[i] += vel_errors[i] * 0.01 # TODO - use time.perf_time() instead of assuming perfect 100 Hz messages
 
         speeds = Int32MultiArray()
+        # speeds.data= [0, 200, 0, 0, 0, 200, 0, 0] # TESTING
+        
         speeds.data = []
         for i in range(8):
             speeds.data.append(int(Kp * vel_errors[i] + Ki * self.vel_error_integrals.data[i]))
-
-        self.speed_cmd_pub.publish(speeds)        
+        
+        self.speed_cmd_pub.publish(speeds)
+        print(f'Speeds: {speeds.data}') # testing
 
 def main(args=None):
     rclpy.init(args=args)

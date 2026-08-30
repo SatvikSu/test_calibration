@@ -54,7 +54,7 @@ GPIO.setmode(GPIO.BOARD) # Allows to call GPIO pins by their physical location #
 
 # (mux_channel, port) -> (pinA, pinB)
 # 4 total motor controllers, 8 total controlled actuators
-ENCODER_PINS_BY_CH_PORT = {
+ENCODER_PINS_BY_CH_PORT = { # are the enc pins wrong?
     # Mux 7 (m1) -> Back Wheels
     (7, 1): (12, 13),  # back_wheel_1 (7, 1) -> (12, 13)
     (7, 2): (7, 11),   # back_wheel_2
@@ -212,7 +212,7 @@ class MotorInterfaceNode(Node):
                 # --------------- CREATE MOTOR OBJECTS --------------
         AXIS_CONFIG = {
             'W_FL': dict(ch=1, port=1, enc_sign=1,  speed_max=700),
-            'W_FR': dict(ch=0, port=2, enc_sign=1,  speed_max=700, motor_sign=-1), # motor is flipped direction
+            'W_FR': dict(ch=0, port=2, enc_sign=-1,  speed_max=700, motor_sign=-1), # motor is flipped direction
             'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=700),
             'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=700),
             'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=620, motor_sign=-1), 
@@ -272,10 +272,11 @@ class MotorInterfaceNode(Node):
         velocities.data.append(self.axes['W_RL'].get_vel())
         velocities.data.append(self.axes['W_RR'].get_vel())
         velocities.data.append(self.axes['L_FL'].get_vel())
-        velocities.data.append(self.axes['L_FL'].get_vel())
+        velocities.data.append(self.axes['L_FR'].get_vel())
         velocities.data.append(self.axes['L_RL'].get_vel())
         velocities.data.append(self.axes['L_RR'].get_vel())
         self.velocity_pub.publish(velocities)
+        print(f'Velocities: {velocities.data}') # TESTING
 
     # Stall detection function
     def stall_detect(self, leg):
@@ -321,7 +322,7 @@ class MotorInterfaceNode(Node):
 
         # go back a little
         leg.set_speed(-1*speed)
-        time.sleep(1)
+        time.sleep(2)
         leg.set_speed(0)
         
 
