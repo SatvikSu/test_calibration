@@ -18,7 +18,7 @@ reference_vel = [ # in rad/s
             0, # W_RL
             0, # W_RR
             0, # L_FL
-            90 * pi/180, # L_FR
+            0, #90 * pi/180, # L_FR
             0, # L_RL
             0, # L_RR
         ]
@@ -31,11 +31,10 @@ class MotorOutputNode(Node):
         self.velocity_sub = self.create_subscription(Float32MultiArray, 'motor/velocity', self.velocityPID, 10)
 
         # track integral of velocity error 
-        self.vel_error_integrals = Float32MultiArray()
-        self.vel_error_integrals.data = []
+        self.vel_error_integrals = []
         for i in range(8):
-            self.vel_error_integrals.data.append(0)
-        self.prev_time = self.perf_time()
+            self.vel_error_integrals.append(0)
+        self.prev_time = time.perf_counter()
 
     def velocityPID(self, msg : Float32MultiArray):
         
@@ -43,23 +42,24 @@ class MotorOutputNode(Node):
         Ki = 2 * 180/pi # Ki going from omega (rad/s) * time (s) to motor speed command (from -800 to 800). For motor voltage = 12 V
         # reference velocity in rad/s
         
+        curr_time = time.perf_counter()
         vel_errors = []
         for i in range(8):
             vel_errors.append(reference_vel[i] - msg.data[i]) 
-            curr_time = time.perf()
             dt = curr_time - self.prev_time
-            self.prev_time = curr_time
-            self.vel_error_integrals.data[i] += vel_errors[i] * dt
-
+            self.vel_error_integrals[i] += vel_errors[i] * dt
+        self.prev_time = curr_time
         speeds = Int32MultiArray()
+        
         # speeds.data= [0, 200, 0, 0, 0, 200, 0, 0] # TESTING
         
         speeds.data = []
         for i in range(8):
-            speeds.data.append(int(Kp * vel_errors[i] + Ki * self.vel_error_integrals.data[i]))
+            speeds.data.append(int(Kp * vel_errors[i] + Ki * self.vel_error_integrals[i]))
         
         self.speed_cmd_pub.publish(speeds)
         # print(f'Speeds: {speeds.data}') # testing
+        print(f'W_FR: vel error (rad/s): {vel_errors[1]}, vel error integral (rad): {self.vel_error_integrals[1]}') 
 
 def main(args=None):
     rclpy.init(args=args)

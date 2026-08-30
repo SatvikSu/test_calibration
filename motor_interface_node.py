@@ -211,14 +211,14 @@ class MotorInterfaceNode(Node):
 
                 # --------------- CREATE MOTOR OBJECTS --------------
         AXIS_CONFIG = {
-            'W_FL': dict(ch=1, port=1, enc_sign=1,  speed_max=700),
-            'W_FR': dict(ch=0, port=2, enc_sign=-1,  speed_max=700, motor_sign=-1), # motor is flipped direction
-            'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=700),
-            'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=700),
-            'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=620, motor_sign=-1), 
-            'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=620, motor_sign=-1),
-            'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=620),
-            'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=620),
+            'W_FL': dict(ch=1, port=1, enc_sign=1,  speed_max=800),
+            'W_FR': dict(ch=0, port=2, enc_sign=-1,  speed_max=800, motor_sign=-1), # motor is flipped direction
+            'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=800),
+            'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=800),
+            'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=800, motor_sign=-1), 
+            'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=800, motor_sign=-1),
+            'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=800),
+            'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=800),
         }
 
         # Creating axis dictionary
@@ -277,7 +277,7 @@ class MotorInterfaceNode(Node):
         velocities.data.append(self.axes['L_RL'].get_vel())
         velocities.data.append(self.axes['L_RR'].get_vel())
         self.velocity_pub.publish(velocities)
-        print(f'Velocities: {velocities.data}') # TESTING
+        print(f'W_FR velocity (deg/s): {180/pi * velocities.data[1]}') # TESTING
 
 
     # Stall detection function
