@@ -262,6 +262,7 @@ class MotorInterfaceNode(Node):
         self.axes['L_FR'].set_speed(msg.data[5])
         self.axes['L_RL'].set_speed(msg.data[6])
         self.axes['L_RR'].set_speed(msg.data[7])
+        print(f'Setting motor speeds to: {msg.data}') # TESTING
 
 
     def publish_velocity(self):
@@ -277,6 +278,7 @@ class MotorInterfaceNode(Node):
         velocities.data.append(self.axes['L_RR'].get_vel())
         self.velocity_pub.publish(velocities)
         print(f'Velocities: {velocities.data}') # TESTING
+
 
     # Stall detection function
     def stall_detect(self, leg):
