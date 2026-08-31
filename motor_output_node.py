@@ -38,8 +38,8 @@ class MotorOutputNode(Node):
 
     def velocityPID(self, msg : Float32MultiArray):
         
-        Kp = 8 * 180/pi # Kp going from omega (rad/s) to motor speed command (from -800 to 800). For motor voltage = 12 V
-        Ki = 2 * 180/pi # Ki going from omega (rad/s) * time (s) to motor speed command (from -800 to 800). For motor voltage = 12 V
+        Kp = 4 * 180/pi # 8 * 180/pi # Kp going from omega (rad/s) to motor speed command (from -800 to 800). For motor voltage = 12 V
+        Ki = 0.25 * 180/pi # 2 * 180/pi # Ki going from omega (rad/s) * time (s) to motor speed command (from -800 to 800). For motor voltage = 12 V
         # reference velocity in rad/s
         
         curr_time = time.perf_counter()

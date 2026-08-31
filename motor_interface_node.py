@@ -28,7 +28,7 @@ MUX_ADDR       = 0x70 # MUX I2C address
 MUX_BUS        = 7 # MUX I2C Bus number (/dev/i2c-7)
 MOTORON_ADDR   = 0x10 # Encoder I2C address (all encoders use the same address)
 RUN_TIMEOUTS   = 10.0  # Timeout for motor movement until ending the loop
-VEL_FILTER_A   = 0.6 # 0.2
+VEL_FILTER_A   = 0.2 # 0.2
 
 # ---- OLD PID CODE ------
 # min_PWM        = 200 
@@ -147,7 +147,7 @@ class VelEMA:
 mux = smbus.SMBus(MUX_BUS)
 def select_channel(ch):
     mux.write_byte(MUX_ADDR, 1 << ch)
-    time.sleep(0.001)
+    time.sleep(0.0005) # 0.001
 
 motoron = MotoronI2C(bus=MUX_BUS, address=MOTORON_ADDR)
 
