@@ -28,7 +28,7 @@ MUX_ADDR       = 0x70 # MUX I2C address
 MUX_BUS        = 7 # MUX I2C Bus number (/dev/i2c-7)
 MOTORON_ADDR   = 0x10 # Encoder I2C address (all encoders use the same address)
 RUN_TIMEOUTS   = 10.0  # Timeout for motor movement until ending the loop
-VEL_FILTER_A   = 0.2
+VEL_FILTER_A   = 0.6 # 0.2
 
 # ---- OLD PID CODE ------
 # min_PWM        = 200 
