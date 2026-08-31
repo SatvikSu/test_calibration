@@ -145,8 +145,12 @@ class VelEMA:
 
 # Shared Motoron object; select mux channel before issuing commands
 mux = smbus.SMBus(MUX_BUS)
+
+current_channel = None # current selected multiplexer channel
 def select_channel(ch):
-    mux.write_byte(MUX_ADDR, 1 << ch)
+    if ch != current_channel:
+        mux.write_byte(MUX_ADDR, 1 << ch)
+    current_channel = ch
     time.sleep(0.0005) # 0.001
 
 motoron = MotoronI2C(bus=MUX_BUS, address=MOTORON_ADDR)
@@ -160,6 +164,7 @@ def init_motoron_on(ch):
 
 # Axis is representative of ONE motor
 class Axis:
+
     def __init__(self, name, mux_ch, port, enc_sign=+1, speed_max=600,vel_alpha=VEL_FILTER_A,
                  motor_sign=+1, leg_min = 0, leg_max = 0):
         self.name = name
@@ -233,6 +238,7 @@ class MotorInterfaceNode(Node):
                                     speed_max=config.get('speed_max', 620),
                                     motor_sign=config.get('motor_sign', 1))
             print(f"{name} Axis object has been created")
+        print('All 8 Axis objects have been created')
         
     def calibration(self, msg:String):
 
