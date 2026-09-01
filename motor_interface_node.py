@@ -105,6 +105,7 @@ class QuadEncoder:
         # Adding event detection (interrupt) to detect edges for A and B
         GPIO.add_event_detect(self.pin_a, GPIO.BOTH, callback=self._edge, bouncetime=0)
         GPIO.add_event_detect(self.pin_b, GPIO.BOTH, callback=self._edge, bouncetime=0)
+        print('event detect added') # TESTING
     
     # Method to detect the new state of A and B channels
     def _edge(self, _):
@@ -221,14 +222,14 @@ class MotorInterfaceNode(Node):
 
                 # --------------- CREATE MOTOR OBJECTS --------------
         AXIS_CONFIG = {
-            'W_FL': dict(ch=1, port=1, enc_sign=1,  speed_max=800),
+            #'W_FL': dict(ch=1, port=1, enc_sign=1,  speed_max=800),
             'W_FR': dict(ch=0, port=2, enc_sign=-1,  speed_max=800, motor_sign=-1), # motor is flipped direction
-            'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=800),
-            'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=800),
-            'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=800, motor_sign=-1), 
-            'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=800, motor_sign=-1),
-            'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=800),
-            'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=800),
+            #'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=800),
+            #'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=800),
+            #'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=800, motor_sign=-1), 
+            #'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=800, motor_sign=-1),
+            #'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=800),
+            #'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=800),
         }
 
         # Creating axis dictionary
@@ -243,7 +244,7 @@ class MotorInterfaceNode(Node):
                                     speed_max=config.get('speed_max', 620),
                                     motor_sign=config.get('motor_sign', 1))
             print(f"{name} Axis object has been created")
-        print('All 8 Axis objects have been created')
+        print('All Axis objects have been created')
         
     def calibration(self, msg:String):
 
@@ -265,30 +266,33 @@ class MotorInterfaceNode(Node):
         
 
     def set_motor_speeds(self, msg):
-        self.axes['W_FL'].set_speed(msg.data[0])
-        self.axes['W_FR'].set_speed(msg.data[1])
-        self.axes['W_RL'].set_speed(msg.data[2])
-        self.axes['W_RR'].set_speed(msg.data[3])
-        self.axes['L_FL'].set_speed(msg.data[4])
-        self.axes['L_FR'].set_speed(msg.data[5])
-        self.axes['L_RL'].set_speed(msg.data[6])
-        self.axes['L_RR'].set_speed(msg.data[7])
-        print(f'Setting motor speeds to: {msg.data}') # TESTING
-
+        #self.axes['W_FL'].set_speed(msg.data[0])
+        self.axes['W_FR'].set_speed(msg.data[0])
+        #self.axes['W_RL'].set_speed(msg.data[2])
+        #self.axes['W_RR'].set_speed(msg.data[3])
+        #self.axes['L_FL'].set_speed(msg.data[4])
+        #self.axes['L_FR'].set_speed(msg.data[5])
+        #self.axes['L_RL'].set_speed(msg.data[6])
+        #self.axes['L_RR'].set_speed(msg.data[7])
+        print(f'Setting W_FR motor speed to: {msg.data[0]}') # TESTING
+        
+        if self.axes['W_FR'].get_pos() * 180 / pi >= 3600:
+                print("W_FR did 10 revs")
+	
 
     def publish_velocity(self):
         velocities = Float32MultiArray()
         velocities.data = []
-        velocities.data.append(self.axes['W_FL'].get_vel())
+        #velocities.data.append(self.axes['W_FL'].get_vel())
         velocities.data.append(self.axes['W_FR'].get_vel())
-        velocities.data.append(self.axes['W_RL'].get_vel())
-        velocities.data.append(self.axes['W_RR'].get_vel())
-        velocities.data.append(self.axes['L_FL'].get_vel())
-        velocities.data.append(self.axes['L_FR'].get_vel())
-        velocities.data.append(self.axes['L_RL'].get_vel())
-        velocities.data.append(self.axes['L_RR'].get_vel())
+        #velocities.data.append(self.axes['W_RL'].get_vel())
+        #velocities.data.append(self.axes['W_RR'].get_vel())
+        #velocities.data.append(self.axes['L_FL'].get_vel())
+        #velocities.data.append(self.axes['L_FR'].get_vel())
+        #velocities.data.append(self.axes['L_RL'].get_vel())
+        #velocities.data.append(self.axes['L_RR'].get_vel())
         self.velocity_pub.publish(velocities)
-        print(f'W_FR velocity (deg/s): {180/pi * velocities.data[1]}') # TESTING
+        print(f'W_FR velocity (deg/s): {180/pi * velocities.data[0]}') # TESTING
 
 
     # Stall detection function
