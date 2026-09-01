@@ -195,6 +195,7 @@ class Axis:
         select_channel(self.ch)
         u = u * self.motor_sign
         motoron.set_speed(self.port, int(clamp(u, -self.speed_max, self.speed_max)))
+        self.speed = u
 
     # Returns the angular position of the motor in RADIANS
     def get_pos(self): 
