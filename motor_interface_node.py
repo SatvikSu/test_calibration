@@ -28,7 +28,7 @@ MUX_ADDR       = 0x70 # MUX I2C address
 MUX_BUS        = 7 # MUX I2C Bus number (/dev/i2c-7)
 MOTORON_ADDR   = 0x10 # Encoder I2C address (all encoders use the same address)
 RUN_TIMEOUTS   = 10.0  # Timeout for motor movement until ending the loop
-VEL_FILTER_A   = 0.2 # 0.2
+VEL_FILTER_A   = 0.8 # 0.2
 
 # ---- OLD PID CODE ------
 # min_PWM        = 200 
@@ -146,8 +146,9 @@ class VelEMA:
 # Shared Motoron object; select mux channel before issuing commands
 mux = smbus.SMBus(MUX_BUS)
 
-current_channel = None # current selected multiplexer channel
+current_channel = -1 # current selected multiplexer channel
 def select_channel(ch):
+    global current_channel
     if ch != current_channel:
         mux.write_byte(MUX_ADDR, 1 << ch)
     current_channel = ch
@@ -170,6 +171,7 @@ class Axis:
         self.name = name
         self.ch   = mux_ch
         self.port = port
+        self.speed = -1
 
         # Motor_sign flips the physical drive direction for a given command.
         # Pair it with enc_sign so a +command still increases pos (loop stays stable).
@@ -188,6 +190,8 @@ class Axis:
 
     # Sets the speed of the motor and direction
     def set_speed(self, u):
+        if u == self.speed:
+            return 
         select_channel(self.ch)
         u = u * self.motor_sign
         motoron.set_speed(self.port, int(clamp(u, -self.speed_max, self.speed_max)))
@@ -256,7 +260,7 @@ class MotorInterfaceNode(Node):
             print("All legs finished calibrating")
 
         # now that calibration is done, start publishing motor data
-        self.vel_timer = self.create_timer(0.01, self.publish_velocity)
+        self.vel_timer = self.create_timer(0.025, self.publish_velocity) # 0.01
         
 
     def set_motor_speeds(self, msg):

@@ -49,10 +49,8 @@ class MotorOutputNode(Node):
             dt = curr_time - self.prev_time
             self.vel_error_integrals[i] += vel_errors[i] * dt
         self.prev_time = curr_time
+        
         speeds = Int32MultiArray()
-        
-        # speeds.data= [0, 200, 0, 0, 0, 200, 0, 0] # TESTING
-        
         speeds.data = []
         for i in range(8):
             speeds.data.append(int(Kp * vel_errors[i] + Ki * self.vel_error_integrals[i]))
