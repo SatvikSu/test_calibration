@@ -86,38 +86,40 @@ class QuadEncoder:
     # The encoders change steps by the bit such that:
     # Forwards: 00 -> 01 -> 11 -> 10 ()
     # Backwards: 10 -> 11 -> 01 -> 00
+    '''
     _TT = {
         (0b00, 0b01): +1, (0b01, 0b11): +1, (0b11, 0b10): +1, (0b10, 0b00): +1,
         (0b00, 0b10): -1, (0b10, 0b11): -1, (0b11, 0b01): -1, (0b01, 0b00): -1,
     }
+    '''
     def __init__(self, pin_a, pin_b, sign=+1):
         self.pin_a = pin_a
         self.pin_b = pin_b
         self.sign = 1 if sign >= 0 else -1
         self._count = 0
         self._lock  = threading.Lock()
-        self._last  = 0
         # Config GPIO as an input pin
         GPIO.setup(self.pin_a, GPIO.IN)
         GPIO.setup(self.pin_b, GPIO.IN)
-        a = GPIO.input(self.pin_a); b = GPIO.input(self.pin_b)
-        self._last = (a << 1) | b # Bitwise left shift to capture current baseline edge
-        # Adding event detection (interrupt) to detect edges for A and B
+        # Adding event detection (interrupt) to detect edges for A 
         GPIO.add_event_detect(self.pin_a, GPIO.BOTH, callback=self._edge, bouncetime=0)
-        GPIO.add_event_detect(self.pin_b, GPIO.BOTH, callback=self._edge, bouncetime=0)
-        print('event detect added') # TESTING
-    
+        
     # Method to detect the new state of A and B channels
     def _edge(self, _):
         a = GPIO.input(self.pin_a); b = GPIO.input(self.pin_b)
-        state = (a << 1) | b # Bitwise left shift to capture new state
-        if state != self._last: 
-            delta = self._TT.get((self._last, state), 0) # Compares old and new state with transition table
-            if delta:
-                with self._lock:
-                    self._count += delta * self.sign
-            self._last = state
-    
+        delta = 0
+        if a == 0:
+            if b == 1:
+                delta = -2
+            elif b == 0:
+                delta = 2
+        elif a == 1:
+            if b == 0:
+                delta = -2
+            elif b == 1:
+                delta = 2
+        self._count += delta * self.sign
+
     # Method to read the current tick count # CONVERT TO ROTATIONAL (rad or deg)
     def read(self):
         with self._lock:
