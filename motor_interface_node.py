@@ -271,7 +271,7 @@ class MotorInterfaceNode(Node):
             print("All legs finished calibrating")
 
         # now that calibration is done, start publishing motor data
-        self.vel_timer = self.create_timer(0.025, self.publish_velocity) # 0.01
+        self.vel_timer = self.create_timer(0.01, self.publish_velocity) # 0.01
         
 
     def set_motor_speeds(self, msg):
