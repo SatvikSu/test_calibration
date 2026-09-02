@@ -283,11 +283,12 @@ class MotorInterfaceNode(Node):
         #self.axes['L_FR'].set_speed(msg.data[5])
         #self.axes['L_RL'].set_speed(msg.data[6])
         #self.axes['L_RR'].set_speed(msg.data[7])
-        print(f'Setting W_FR motor speed to: {msg.data[0]}') # TESTING
+        #print(f'Setting W_FR motor speed to: {msg.data[0]}') # TESTING
         
+        '''
         if self.axes['W_FR'].get_pos() * 180 / pi >= 3600:
                 print("W_FR did 10 revs")
-	
+	'''
 
     def publish_velocity(self):
         velocities = Float32MultiArray()
@@ -301,7 +302,7 @@ class MotorInterfaceNode(Node):
         #velocities.data.append(self.axes['L_RL'].get_vel())
         #velocities.data.append(self.axes['L_RR'].get_vel())
         self.velocity_pub.publish(velocities)
-        print(f'W_FR velocity (deg/s): {180/pi * velocities.data[0]}') # TESTING
+        #print(f'W_FR velocity (deg/s): {180/pi * velocities.data[0]}') # TESTING
 
 
     # Stall detection function

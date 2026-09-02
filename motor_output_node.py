@@ -59,7 +59,7 @@ class MotorOutputNode(Node):
         
         self.speed_cmd_pub.publish(speeds)
         # print(f'Speeds: {speeds.data}') # testing
-        print(f'W_FR: vel error (rad/s): {vel_errors[0]}, vel error integral (rad): {self.vel_error_integrals[0]}') 
+        # print(f'W_FR: vel error (rad/s): {vel_errors[0]}, vel error integral (rad): {self.vel_error_integrals[0]}') 
 
 def main(args=None):
     rclpy.init(args=args)
