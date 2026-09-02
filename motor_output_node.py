@@ -11,7 +11,6 @@ from motoron import MotoronI2C # Used for motor actuation
 import Jetson.GPIO as GPIO
 import smbus # System Management Bus
 
-'''
 reference_vel = [ # in rad/s
             0, # W_FL
             90 * pi/180, # W_FR
@@ -22,9 +21,6 @@ reference_vel = [ # in rad/s
             0, # L_RL
             0, # L_RR
         ]
-'''
-
-reference_vel = [90 * pi/180, ]
 
 class MotorOutputNode(Node):
     def __init__(self):
@@ -34,19 +30,18 @@ class MotorOutputNode(Node):
 
         # track integral of velocity error 
         self.vel_error_integrals = []
-        for i in range(1):
-            self.vel_error_integrals.append(0)
+        for i in range(8):
+            self.vel_error_integrals.append(i)
         self.prev_time = time.perf_counter()
 
     def velocityPID(self, msg : Float32MultiArray):
         
         Kp = 8 * 180/pi # Kp going from omega (rad/s) to motor speed command (from -800 to 800). For motor voltage = 12 V
         Ki = 2 * 180/pi # Ki going from omega (rad/s) * time (s) to motor speed command (from -800 to 800). For motor voltage = 12 V
-        # reference velocity in rad/s
         
         curr_time = time.perf_counter()
         vel_errors = []
-        for i in range(1):
+        for i in range(8):
             vel_errors.append(reference_vel[i] - msg.data[i]) 
             dt = curr_time - self.prev_time
             self.vel_error_integrals[i] += vel_errors[i] * dt
@@ -54,12 +49,10 @@ class MotorOutputNode(Node):
         
         speeds = Int32MultiArray()
         speeds.data = []
-        for i in range(1):
+        for i in range(8):
             speeds.data.append(int(Kp * vel_errors[i] + Ki * self.vel_error_integrals[i]))
         
         self.speed_cmd_pub.publish(speeds)
-        # print(f'Speeds: {speeds.data}') # testing
-        # print(f'W_FR: vel error (rad/s): {vel_errors[0]}, vel error integral (rad): {self.vel_error_integrals[0]}') 
 
 def main(args=None):
     rclpy.init(args=args)
