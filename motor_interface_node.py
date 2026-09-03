@@ -55,21 +55,21 @@ GPIO.setmode(GPIO.BOARD) # Allows to call GPIO pins by their physical location #
 # (mux_channel, port) -> (pinA, pinB)
 # 4 total motor controllers, 8 total controlled actuators
 ENCODER_PINS_BY_CH_PORT = { # are the enc pins wrong?
-    # Mux 7 (m1) -> Back Wheels
-    (7, 1): (12, 13),  # back_wheel_1 (7, 1) -> (12, 13)
-    (7, 2): (7, 11),   # back_wheel_2
+    # Mux 7 (m1) 
+    (7, 1): (12, 13),  # W_RL
+    (7, 2): (7, 11),   # W_RR
 
-    # Mux 6 (m2) -> Legs
-    (6, 1): (15, 16),  # legs_1
-    (6, 2): (21, 22),  # legs_2
+    # Mux 6 (m2) 
+    (6, 1): (15, 16),  # L_RL
+    (6, 2): (21, 22),  # L_RR
 
-    # Mux 1 (m3) -> Legs
-    (1, 1): (23, 24),  # legs_3
-    (1, 2): (31, 32),  # legs_4
+    # Mux 1 (m3) 
+    (1, 1): (23, 24),  # W_FL
+    (1, 2): (31, 32),  # L_FR
 
-    # Mux 0 (m4) -> Front Wheels
-    (0, 1): (35, 36),  # front_wheel_1
-    (0, 2): (37, 38),  # front_wheel_2
+    # Mux 0 (m4) 
+    (0, 1): (35, 36),  # L_FL
+    (0, 2): (37, 38),  # W_FR
 }
 
 
@@ -235,7 +235,7 @@ class MotorInterfaceNode(Node):
             #'W_FR': dict(ch=0, port=2, enc_sign=-1,  speed_max=800, motor_sign=-1), # motor is flipped direction
             #'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=800),
             #'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=800),
-            #'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=800, motor_sign=-1), 
+            'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=800, motor_sign=-1), 
             #'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=800, motor_sign=-1),
             #'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=800),
             #'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=800),
@@ -271,19 +271,23 @@ class MotorInterfaceNode(Node):
             print("All legs finished calibrating")
 
         # now that calibration is done, start publishing motor data
-        # self.vel_timer = self.create_timer(0.01, self.publish_velocity) # 0.01 TESTING commented this out
+        # self.vel_timer = self.create_timer(0.01, self.publish_velocity) 
         # TESTING below bullshit 
-        self.axes['W_FL'].set_speed(200)
+        self.axes['W_FL'].set_speed(300)
         #self.axes['W_FR'].set_speed(0)
         #self.axes['W_RL'].set_speed(0)
         #self.axes['W_RR'].set_speed(0)
-        #self.axes['L_FL'].set_speed(0)
+        self.axes['L_FL'].set_speed(300)
         #self.axes['L_FR'].set_speed(0)
         #self.axes['L_RL'].set_speed(0)
         #self.axes['L_RR'].set_speed(0)
-        while True:
-            print(self.axes['W_FL'].enc.read())
-            time.sleep(1)
+        for _ in range(40):
+            print(f"W_FL revs: {self.axes['W_FL'].get_pos() / (2 * pi)}")
+            print(f"L_FL revs: {self.axes['L_FL'].get_pos() / (2 * pi)}")
+            time.sleep(0.25)
+        self.axes['W_FL'].set_speed(0)
+        self.axes['L_FL'].set_speed(0)
+
 
     def set_motor_speeds(self, msg):
         self.axes['W_FL'].set_speed(msg.data[0])
