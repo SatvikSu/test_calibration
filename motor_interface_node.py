@@ -232,13 +232,13 @@ class MotorInterfaceNode(Node):
                 # --------------- CREATE MOTOR OBJECTS --------------
         AXIS_CONFIG = {
             'W_FL': dict(ch=1, port=1, enc_sign=1,  speed_max=800),
-            'W_FR': dict(ch=0, port=2, enc_sign=-1,  speed_max=800, motor_sign=-1), # motor is flipped direction
-            'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=800),
-            'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=800),
-            'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=800, motor_sign=-1), 
-            'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=800, motor_sign=-1),
-            'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=800),
-            'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=800),
+            #'W_FR': dict(ch=0, port=2, enc_sign=-1,  speed_max=800, motor_sign=-1), # motor is flipped direction
+            #'W_RL': dict(ch=7, port=1, enc_sign=1,  speed_max=800),
+            #'W_RR': dict(ch=7, port=2, enc_sign=1,  speed_max=800),
+            #'L_FL': dict(ch=0, port=1, enc_sign=-1, speed_max=800, motor_sign=-1), 
+            #'L_FR': dict(ch=1, port=2, enc_sign=1,  speed_max=800, motor_sign=-1),
+            #'L_RL': dict(ch=6, port=1, enc_sign=1,  speed_max=800),
+            #'L_RR': dict(ch=6, port=2, enc_sign=1,  speed_max=800),
         }
 
         # Creating axis dictionary
@@ -271,30 +271,41 @@ class MotorInterfaceNode(Node):
             print("All legs finished calibrating")
 
         # now that calibration is done, start publishing motor data
-        self.vel_timer = self.create_timer(0.01, self.publish_velocity) # 0.01
-        
+        # self.vel_timer = self.create_timer(0.01, self.publish_velocity) # 0.01 TESTING commented this out
+        # TESTING below bullshit 
+        self.axes['W_FL'].set_speed(200)
+        #self.axes['W_FR'].set_speed(0)
+        #self.axes['W_RL'].set_speed(0)
+        #self.axes['W_RR'].set_speed(0)
+        #self.axes['L_FL'].set_speed(0)
+        #self.axes['L_FR'].set_speed(0)
+        #self.axes['L_RL'].set_speed(0)
+        #self.axes['L_RR'].set_speed(0)
+        while True:
+            print(self.axes['W_FL'].enc.read())
+            time.sleep(1)
 
     def set_motor_speeds(self, msg):
         self.axes['W_FL'].set_speed(msg.data[0])
-        self.axes['W_FR'].set_speed(msg.data[1])
-        self.axes['W_RL'].set_speed(msg.data[2])
-        self.axes['W_RR'].set_speed(msg.data[3])
-        self.axes['L_FL'].set_speed(msg.data[4])
-        self.axes['L_FR'].set_speed(msg.data[5])
-        self.axes['L_RL'].set_speed(msg.data[6])
-        self.axes['L_RR'].set_speed(msg.data[7])
+        #self.axes['W_FR'].set_speed(msg.data[1])
+        #self.axes['W_RL'].set_speed(msg.data[2])
+        #self.axes['W_RR'].set_speed(msg.data[3])
+        #self.axes['L_FL'].set_speed(msg.data[4])
+        #self.axes['L_FR'].set_speed(msg.data[5])
+        #self.axes['L_RL'].set_speed(msg.data[6])
+        #self.axes['L_RR'].set_speed(msg.data[7])
 
     def publish_velocity(self):
         velocities = Float32MultiArray()
         velocities.data = []
         velocities.data.append(self.axes['W_FL'].get_vel())
-        velocities.data.append(self.axes['W_FR'].get_vel())
-        velocities.data.append(self.axes['W_RL'].get_vel())
-        velocities.data.append(self.axes['W_RR'].get_vel())
-        velocities.data.append(self.axes['L_FL'].get_vel())
-        velocities.data.append(self.axes['L_FR'].get_vel())
-        velocities.data.append(self.axes['L_RL'].get_vel())
-        velocities.data.append(self.axes['L_RR'].get_vel())
+        #velocities.data.append(self.axes['W_FR'].get_vel())
+        #velocities.data.append(self.axes['W_RL'].get_vel())
+        #velocities.data.append(self.axes['W_RR'].get_vel())
+        #velocities.data.append(self.axes['L_FL'].get_vel())
+        #velocities.data.append(self.axes['L_FR'].get_vel())
+        #velocities.data.append(self.axes['L_RL'].get_vel())
+        #velocities.data.append(self.axes['L_RR'].get_vel())
         self.velocity_pub.publish(velocities)
 
     # Stall detection function
